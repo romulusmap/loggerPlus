@@ -1,0 +1,23 @@
+{
+    "content_scripts": [
+        {
+            "js": [
+                "loggerPlus.js"
+            ],
+            "css": [
+                "css/main.css"
+            ],
+            "matches": [
+                "https://su-demo.ax4.com/ax4/servlet/debugConsole",
+                "https://su-psdev1.ax4.com/ax4/servlet/debugConsole"
+            ]
+        }
+    ],
+    "icons": {
+        "16": "favicon/favicon-16x16.png",
+        "48": "favicon/favicon-32x32.png"
+    },
+    "manifest_version": 3,
+    "name": "Logger Plus",
+    "version": "1.0.0"
+}

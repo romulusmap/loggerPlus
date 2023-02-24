@@ -1,0 +1,265 @@
+@font-face {
+    font-family: 'Bungee';
+    font-style: normal;
+    font-weight: 400, 100;
+    src: local('Bungee'), url('https://fonts.cdnfonts.com/s/16074/Bungee-Regular.woff') format('woff');
+}
+
+:root {
+    --private-line-display: block;
+    --debug-line-display: block;
+    --info-line-display: block;
+    --warning-line-display: block;
+    --error-line-display: block;
+    --log-line-display: block;
+    --sql-line-display: block;
+    --debug-line-background-color: '#f8f8ff';
+}
+
+body {
+    padding-left: 100px;
+    padding-right: 100px;
+    background-color: #393e46;
+}
+
+.indentifier {
+    font-weight: bold;
+}
+
+#consoleOutputDivFormatted {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    flex-direction: column;
+}
+
+pre {
+    white-space: pre-wrap;
+}
+
+p {
+    margin: 0px;
+}
+
+.error {
+    background-color: red;
+    cursor: pointer;
+}
+
+.details {
+    max-height: 0px;
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    padding: 0 18px;
+    overflow: hidden;
+    transition: max-height 0.2s ease-out;
+}
+.private-line {
+    background-color: rgb(88, 43, 43);
+    color: aliceblue;
+    display: var(--private-line-display);
+}
+
+.debug-line {
+    background-color: ghostwhite;
+    display: var(--debug-line-display);
+}
+
+.info-line {
+    background-color: rgb(185, 224, 255);
+    display: var(--info-line-display);
+}
+
+.warning-line {
+    color: white;
+    background-color: rgb(176, 30, 104);
+    display: var(--warning-line-display);
+}
+
+.error-line {
+    color: white;
+    background-color: rgb(220, 53, 53);
+    display: var(--error-line-display);
+}
+
+.log-line {
+    background-color: rgb(255, 225, 93);
+    display: var(--log-line-display);
+}
+
+.sql-line {
+    background-color: rgb(251, 250, 205);
+    display: var(--sql-line-display);
+}
+
+.private-option {
+    background-color: rgb(88, 43, 43);
+    color: ghostwhite;
+}
+
+.debug-option {
+    background-color: ghostwhite;
+}
+
+.info-option {
+    background-color: rgb(185, 224, 255);
+}
+
+.warning-option {
+    color: white;
+    background-color: rgb(176, 30, 104);
+}
+
+.error-option {
+    color: white;
+    background-color: rgb(220, 53, 53);
+}
+
+.log-option {
+    background-color: rgb(255, 225, 93);
+}
+
+.sql-option {
+    background-color: rgb(251, 250, 205);
+}
+
+.option {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 5px;
+    border-radius: 10px;
+}
+
+.option p {
+    margin: -5px;
+}
+
+.options {
+    gap: 5px;
+    margin: 2px;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    list-style: none;
+    color: black;
+    padding: 0px;
+}
+
+.options p {
+    display: flex;
+    justify-content: center;
+    font-family: 'Bungee';
+    font-size: 0.7em;
+    cursor: default;
+}
+
+.group {
+    cursor: pointer;
+    position: relative;
+    transition: transform 200ms ease;
+}
+
+.group:hover {
+    transform: scale(1.005);
+}
+
+.group::before {
+    content: attr(data-content);
+    position: absolute;
+    right: 5px;
+    background-color: rgb(78 78 78);
+    border-radius: 30%;
+    text-align: center;
+    height: 16px;
+    width: 16px;
+    color: white;
+    top: 0.06em;
+    font-size: 2em;
+    line-height: 0.5em;
+}
+
+.line {
+    padding: 2px 10px 2px 10px;
+    border-radius: 3px;
+    margin-top: 1px;
+    margin-bottom: 1px;
+    width: 100%;
+    word-break: break-word;
+}
+
+.menu {
+    padding: 2px;
+    border-radius: 10px;
+    position: fixed;
+    top: 50%;
+    right: 20px;
+    transform: translatey(-50%);
+    background: #161515;
+}
+
+/* SLIDERS */
+
+/* The switch - the box around the slider */
+.switch {
+    position: relative;
+    display: inline-block;
+    width: 40px;
+    height: 20px;
+}
+
+/* Hide default HTML checkbox */
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+/* The slider */
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: #ccc;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+.slider:before {
+    position: absolute;
+    content: '';
+    height: 12px;
+    width: 12px;
+    left: 4px;
+    bottom: 4px;
+    background-color: white;
+    -webkit-transition: 0.4s;
+    transition: 0.4s;
+}
+
+input:checked + .slider {
+    background-color: #2196f3;
+}
+
+input:focus + .slider {
+    box-shadow: 0 0 1px #2196f3;
+}
+
+input:checked + .slider:before {
+    -webkit-transform: translateX(16px);
+    -ms-transform: translateX(16px);
+    transform: translateX(16px);
+}
+
+/* Rounded sliders */
+.slider.round {
+    border-radius: 14px;
+}
+
+.slider.round:before {
+    border-radius: 50%;
+}
