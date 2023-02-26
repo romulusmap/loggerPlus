@@ -123,6 +123,15 @@ p {
 .sql-option {
     background-color: rgb(251, 250, 205);
 }
+.scroll-option {
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    border: 1px solid white;
+    border-radius: 10px;
+    height: 50px;
+}
+
 
 .option {
     display: flex;
@@ -145,6 +154,10 @@ p {
     list-style: none;
     color: black;
     padding: 0px;
+    background: #243148;
+    padding: 5px;
+    border-radius: 10px;
+    margin: 0px;
 }
 
 .options p {
@@ -153,6 +166,51 @@ p {
     font-family: 'Bungee';
     font-size: 0.7em;
     cursor: default;
+}
+.hider {
+    background: #243148;
+    width: 30px;
+    height: 30px;
+    padding: 5px;
+    position: relative;
+    border-radius: 10px 0px 0px 10px;
+    border-right: 1px solid white;
+    cursor: pointer;
+}
+
+.hider::before {
+    content: "";
+    position: absolute;
+    background-color: transparent;
+    bottom: -50px;
+    right: -2px;
+    height: 50px;
+    width: 25px;
+    border-top-right-radius: 25px;
+    box-shadow: 0 -25px 0 0 #243148;
+    z-index: -1;
+  }
+
+  .hider::after {
+    content: "";
+    position: absolute;
+    background-color: transparent;
+    top: -50px;
+    right: -2px;
+    height: 50px;
+    width: 25px;
+    border-bottom-right-radius: 25px;
+    box-shadow: 0 25px 0 0 #243148;
+    z-index: -1;
+  }
+
+.hider img {
+    filter: invert(100%);
+    transition: all 200ms ease;
+}
+
+.hider img:hover {
+    filter: invert(100%) drop-shadow(0 0 5px white);
 }
 
 .group {
@@ -190,16 +248,31 @@ p {
 }
 
 .menu {
+    z-index: 100;
     padding: 2px;
     border-radius: 10px;
     position: fixed;
     top: 50%;
     right: 20px;
     transform: translatey(-50%);
-    background: #161515;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: all 1000ms ease;
 }
 
 /* SLIDERS */
+.scroll-switch {
+    transform: rotate(90deg);
+    margin-right: -10px;
+}
+
+#scroll {
+    filter: invert(100%);
+    margin-left: -10px;
+    margin-right: -10px;
+}
+
 
 /* The switch - the box around the slider */
 .switch {

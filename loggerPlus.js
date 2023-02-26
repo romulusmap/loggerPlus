@@ -1,6 +1,6 @@
 const consoleOutput = document.getElementById('debugConsoleOutput');
-
 const consoleOutputDivFormatted = document.createElement('pre');
+const scrollCheckKey = 'scroll-check';
 
 consoleOutput.insertAdjacentElement('afterend', consoleOutputDivFormatted);
 
@@ -110,9 +110,10 @@ function addClasses(array) {
 }
 
 function textToDiv() {
-  const consoleOutputFiltered = consoleOutput.innerText.replaceAll('<js>', 'js');
-  let consoleArray = consoleOutputFiltered.split(indentifierRegex2);
+  let consoleOutputFiltered = consoleOutput.innerText.replaceAll('<js>', 'js');
+  consoleOutputFiltered = consoleOutputFiltered.replaceAll('<query>', 'query');
 
+  let consoleArray = consoleOutputFiltered.split(indentifierRegex2);
   consoleArray = consoleArray.filter((element) => element !== undefined && element !== '');
 
   let logsMerged = mergePairs(consoleArray);
@@ -135,60 +136,74 @@ function textToDiv() {
 }
 
 function addMenu() {
+    const scrollElement = document.createElement('img');
+    scrollElement.src = 'img/scroll.png';
+    scrollElement.alt = 'scroll';
+
     const menu = `
     <div class="menu">
-    <ul class="options">
-        <li class="private-option option">
-            <p>Private</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round" id="option-private"></span>
-            </label>
-        </li>
-        <li class="debug-option option">
-            <p>Debug</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round" id="option-debug"></span>
-            </label>
-        </li>
-        <li class="info-option option">
-            <p>Info</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round" id="option-info"></span>
-            </label>
-        </li>
-        <li class="warning-option option">
-            <p>Warn</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round" id="option-warning"></span>
-            </label>
-        </li>
-        <li class="error-option option">
-            <p>Error</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round" id="option-error"></span>
-            </label>
-        </li>
-        <li class="log-option option">
-            <p>Log</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round" id="option-log"></span>
-            </label>
-        </li>
-        <li class="sql-option option">
-            <p>Sql</p>
-            <label class="switch">
-                <input type="checkbox">
-                <span class="slider round" id="option-sql"></span>
-            </label>
-        </li>
-    </ul>
-</div>`;
+        <div class="hider" id="hider">
+            <img src="${chrome.runtime.getURL('img/arrow-right.png')}" width="30px" height="30px" alt="arrow-right" id="menu-arrow">
+        </div>
+        <ul class="options">
+            <li class="private-option option">
+                <p>Private</p>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round" id="option-private"></span>
+                </label>
+            </li>
+            <li class="debug-option option">
+                <p>Debug</p>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round" id="option-debug"></span>
+                </label>
+            </li>
+            <li class="info-option option">
+                <p>Info</p>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round" id="option-info"></span>
+                </label>
+            </li>
+            <li class="warning-option option">
+                <p>Warn</p>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round" id="option-warning"></span>
+                </label>
+            </li>
+            <li class="error-option option">
+                <p>Error</p>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round" id="option-error"></span>
+                </label>
+            </li>
+            <li class="log-option option">
+                <p>Log</p>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round" id="option-log"></span>
+                </label>
+            </li>
+            <li class="sql-option option">
+                <p>Sql</p>
+                <label class="switch">
+                    <input type="checkbox">
+                    <span class="slider round" id="option-sql"></span>
+                </label>
+            </li>
+            <li class="scroll-option">
+                <img src="${chrome.runtime.getURL('img/scroll.png')}" width="40px" height="40px" alt="scroll" id="scroll">
+                <label class="switch scroll-switch">
+                    <input type="checkbox">
+                    <span class="slider round" id="option-scroll"></span>
+                </label>
+            </li>
+        </ul>
+    </div>`;
 
     document.querySelector('body').insertAdjacentHTML('afterbegin', menu);
 
@@ -211,6 +226,37 @@ function addMenu() {
             changeDisplayProperty(cssParameter, localStorageChecked);
         });
     });
+
+    const hider = document.querySelector('#hider');
+    const menuArrow = document.querySelector('#menu-arrow');
+
+    hider.addEventListener('click', () => {
+        if (hider.parentElement.style.right == '-72px') {
+            hider.parentElement.style.right = '20px';
+            menuArrow.style.transform = 'scaleX(1)';
+        } else {
+            hider.parentElement.style.right = '-72px';
+            menuArrow.style.transform = 'scaleX(-1)';
+        }
+    });
+
+    const scrollOption = document.querySelector('#option-scroll');
+    
+    let scrollCheckValue = JSON.parse(localStorage.getItem(scrollCheckKey));
+
+    if (scrollCheckValue == null) {
+        scrollCheckValue = true;
+    }
+    scrollOption.previousElementSibling.checked = scrollCheckValue;
+
+    scrollOption.addEventListener('click', () => {
+        if (scrollOption.previousElementSibling.checked == true) {
+            localStorage.setItem(scrollCheckKey, false);
+        } else {
+            localStorage.setItem(scrollCheckKey, true);
+        }
+    });
+
 }
 
 function changeDisplayProperty(cssParameter, localStorageChecked) {
@@ -235,7 +281,11 @@ function setDisplayProperty(cssParameter, checked, menuSlider) {
 }
 
 function scrollToBottom() {
-    window.scrollTo(0, document.body.scrollHeight);
+    let scrollCheck = JSON.parse(localStorage.getItem(scrollCheckKey));
+
+    if (scrollCheck == true) {
+        window.scrollTo(0, document.body.scrollHeight);
+    }
 }
 
 function expandCollapseClickCallback(details) {

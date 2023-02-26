@@ -50,9 +50,10 @@ To install the Logger Plus, follow these steps:
     - `SQL` - SQL querries logs
 - All logs are color coded to their type.
 - Each type can be toggled on and off by clicking on the type name in the right side menu.
-- Code is automatically scrolled to the botton on every log update or when change is made in the right side menu. - This option will be customizable later on.
+- Code is automatically scrolled to the botton on every log update or when change is made in the right side menu. This can be turned off in the settings menu.
 - Log that is longer than few lines will be collapsed by default, and a plus sign will be displayed in the right side of the log. Clicking on the plus sign or the log itself will expand it.
 - Clicking again on the log will collapse it.
+- You can hide the right side menu by clicking on the hide arrow button on the left side of the menu.
 
 
 ## Troubleshooting

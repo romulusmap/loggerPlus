@@ -1,16 +1,9 @@
 {
     "content_scripts": [
         {
-            "js": [
-                "loggerPlus.js"
-            ],
-            "css": [
-                "css/main.css"
-            ],
-            "matches": [
-                "https://su-demo.ax4.com/ax4/servlet/debugConsole",
-                "https://su-psdev1.ax4.com/ax4/servlet/debugConsole"
-            ]
+            "js": ["loggerPlus.js"],
+            "css": ["css/main.css"],
+            "matches": ["https://su-demo.ax4.com/ax4/servlet/debugConsole", "https://su-psdev1.ax4.com/ax4/servlet/debugConsole"]
         }
     ],
     "icons": {
@@ -19,5 +12,12 @@
     },
     "manifest_version": 3,
     "name": "Logger Plus",
-    "version": "1.0.0"
+    "description": "Debug Console extension that helps navigate through the wall of text.",
+    "version": "1.1.0",
+    "web_accessible_resources": [
+        {
+          "resources": ["img/scroll.png", "img/arrow-right.png"],
+          "matches": ["https://su-demo.ax4.com/*", "https://su-psdev1.ax4.com/*"]
+        }
+    ]
 }
