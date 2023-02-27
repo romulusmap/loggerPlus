@@ -63,4 +63,4 @@ If you experience any issues with the installation or usage of the extension, tr
 
 ## Contact
 
-For ideas, suggestions, or bug reports, please contact the developer at: 
+For ideas, suggestions, or bug reports, please contact me at: [Create a new issue](https://github.com/romulusmap/loggerPlus/issues/new/choose)
