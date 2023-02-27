@@ -9,3 +9,9 @@
 - Added hide/show button to the menu bar
 - Added option to turn on/off the auto-scroll feature
 - Reworked the visual design of the menu a bit
+
+## v1.2.0 - Implemented private logs customization
+
+- Added input field to the menu bar to allow users to customize the private logs
+- Rewrote the visual design of the menu a bit
+- Changed variables keywords

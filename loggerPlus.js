@@ -3,6 +3,7 @@ const consoleOutputDivFormatted = document.createElement('pre');
 const scrollCheckKey = 'scroll-check';
 
 consoleOutput.insertAdjacentElement('afterend', consoleOutputDivFormatted);
+let PRIVATE = localStorage.getItem('private') || '~~';
 
 const LINESTYPES = {
     PRIVATE: 'private-line',
@@ -21,7 +22,6 @@ const CLASSIFIERS = {
     ERROR: ['Exception', '	at ', '... ', 'Details: ', '] ', 'Caused by: ', 'An exception has occured:'],
     LOG: [' SlangLogger:'],
     SQL: ['SQL query', 'SQL API query', 'select ', 'SELECT', 'SQLGenerator:'],
-    PRIVATE: ['~~'],
 };
 
 const indentifierRegex2 = /([0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?,[0-9]+\s+[a-zA-Z]+\s+\[[A-Za-z0-9]+\]\s+'[A-Za-z0-9]+'\s+\[[A-Za-z0-9]+\])/i;
@@ -40,7 +40,7 @@ function isPartOfIdentifier(input) {
 }
 
 function mergePairs(array) {
-    let result = [];
+    const result = [];
     for (let i = 0; i < array.length; i += 2) {
         if (i + 1 < array.length) {
             result.push(array[i] + array[i + 1]);
@@ -53,7 +53,8 @@ function mergePairs(array) {
 
 function classifyLines(array) {
     array.forEach((div) => {
-        var text = div.textContent;
+        console.log(CLASSIFIERS.PRIVATE);
+        const text = div.textContent;
 
         if (isPartOfIdentifier(text)) {
             if (CLASSIFIERS.DEBUG.some((classifier) => text.includes(classifier)) && CLASSIFIERS.SQL.every((classifier) => !text.includes(classifier))) {
@@ -75,7 +76,7 @@ function classifyLines(array) {
                 div.dataset.type = 'SQL';
             }
         }
-        if (CLASSIFIERS.PRIVATE.some((classifier) => text.includes(classifier))) {
+        if (text.includes(PRIVATE)) {
             div.dataset.type = 'PRIVATE';
         }
     });
@@ -110,29 +111,29 @@ function addClasses(array) {
 }
 
 function textToDiv() {
-  let consoleOutputFiltered = consoleOutput.innerText.replaceAll('<js>', 'js');
-  consoleOutputFiltered = consoleOutputFiltered.replaceAll('<query>', 'query');
+    let consoleOutputFiltered = consoleOutput.innerText.replaceAll('<js>', 'js');
+    consoleOutputFiltered = consoleOutputFiltered.replaceAll('<query>', 'query');
 
-  let consoleArray = consoleOutputFiltered.split(indentifierRegex2);
-  consoleArray = consoleArray.filter((element) => element !== undefined && element !== '');
+    let consoleArray = consoleOutputFiltered.split(indentifierRegex2);
+    consoleArray = consoleArray.filter((element) => element !== undefined && element !== '');
 
-  let logsMerged = mergePairs(consoleArray);
+    const logsMerged = mergePairs(consoleArray);
 
-  const logsElements = logsMerged.map((log) => {
-      const divElement = document.createElement('div');
-      divElement.innerHTML = log;
-      return divElement;
-  });
+    const logsElements = logsMerged.map((log) => {
+        const divElement = document.createElement('div');
+        divElement.innerHTML = log;
+        return divElement;
+    });
 
-  consoleOutput.innerHTML = '';
+    consoleOutput.innerHTML = '';
 
-  classifyLines(logsElements);
-  prepareLogLineContent(logsElements);
-  addClasses(logsElements);
+    classifyLines(logsElements);
+    prepareLogLineContent(logsElements);
+    addClasses(logsElements);
 
-  logsElements.forEach((element) => {
-      consoleOutputDivFormatted.appendChild(element);
-  });
+    logsElements.forEach((element) => {
+        consoleOutputDivFormatted.appendChild(element);
+    });
 }
 
 function addMenu() {
@@ -143,11 +144,12 @@ function addMenu() {
     const menu = `
     <div class="menu">
         <div class="hider" id="hider">
-            <img src="${chrome.runtime.getURL('img/arrow-right.png')}" width="30px" height="30px" alt="arrow-right" id="menu-arrow">
+            <img src="${chrome.runtime.getURL('img/arrow.png')}" width="30px" height="30px" alt="arrow" id="menu-arrow">
         </div>
         <ul class="options">
             <li class="private-option option">
                 <p>Private</p>
+                <input class="private-input" id="private-input" type="text" maxlength="4" value="${PRIVATE}"></input>
                 <label class="switch">
                     <input type="checkbox">
                     <span class="slider round" id="option-private"></span>
@@ -209,13 +211,13 @@ function addMenu() {
 
     const menuOptions = ['#option-private', '#option-debug', '#option-info', '#option-warning', '#option-error', '#option-log', '#option-sql'];
 
-    let menuSliders = menuOptions.map((option) => document.querySelector(option));
+    const menuSliders = menuOptions.map((option) => document.querySelector(option));
     menuSliders.forEach((menuSlider) => {
-        let cssParameterPrefix = menuSlider.id.split('-')[1];
-        let cssParameterSuffix = '-line-display';
-        let cssParameter = `--${cssParameterPrefix + cssParameterSuffix}`;
-        let localStorageChecked = `${cssParameterPrefix}-checked`;
-        let checked = JSON.parse(localStorage.getItem(localStorageChecked));
+        const cssParameterPrefix = menuSlider.id.split('-')[1];
+        const cssParameterSuffix = '-line-display';
+        const cssParameter = `--${cssParameterPrefix + cssParameterSuffix}`;
+        const localStorageChecked = `${cssParameterPrefix}-checked`;
+        const checked = JSON.parse(localStorage.getItem(localStorageChecked));
 
         if (checked == null) {
             checked = true;
@@ -232,7 +234,7 @@ function addMenu() {
 
     hider.addEventListener('click', () => {
         if (hider.parentElement.style.right == '-72px') {
-            hider.parentElement.style.right = '20px';
+            hider.parentElement.style.right = '10px';
             menuArrow.style.transform = 'scaleX(1)';
         } else {
             hider.parentElement.style.right = '-72px';
@@ -241,8 +243,8 @@ function addMenu() {
     });
 
     const scrollOption = document.querySelector('#option-scroll');
-    
-    let scrollCheckValue = JSON.parse(localStorage.getItem(scrollCheckKey));
+
+    const scrollCheckValue = JSON.parse(localStorage.getItem(scrollCheckKey));
 
     if (scrollCheckValue == null) {
         scrollCheckValue = true;
@@ -257,6 +259,22 @@ function addMenu() {
         }
     });
 
+    const privateInput = document.querySelector('#private-input');
+    privateInput.addEventListener('change', () => {
+        const array = consoleOutputDivFormatted.childNodes;
+        const privateValue = privateInput.value;
+
+        localStorage.setItem('private', privateValue);
+        PRIVATE = privateValue;
+
+        classifyLines(array);
+
+        array.forEach((element) => {
+            element.classList.remove(...element.classList);
+        });
+
+        addClasses(array);
+    });
 }
 
 function changeDisplayProperty(cssParameter, localStorageChecked) {
@@ -281,7 +299,7 @@ function setDisplayProperty(cssParameter, checked, menuSlider) {
 }
 
 function scrollToBottom() {
-    let scrollCheck = JSON.parse(localStorage.getItem(scrollCheckKey));
+    const scrollCheck = JSON.parse(localStorage.getItem(scrollCheckKey));
 
     if (scrollCheck == true) {
         window.scrollTo(0, document.body.scrollHeight);

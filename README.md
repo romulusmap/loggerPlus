@@ -41,7 +41,7 @@ To install the Logger Plus, follow these steps:
 ## Usage Instructions
 
 - All incoming logs are categorized into one of the 7 types:
-    - `Private` - Private logs
+    - `Private` - Private logs, categorized by "up to 4-letter" custom identifier
     - `DEBUG` - Debug logs
     - `INFO` - Informational logs
     - `WARN` - Warning logs - mostly used for deprecated methods
@@ -50,6 +50,7 @@ To install the Logger Plus, follow these steps:
     - `SQL` - SQL querries logs
 - All logs are color coded to their type.
 - Each type can be toggled on and off by clicking on the type name in the right side menu.
+- Private type can be customized by accessing the input field, changing the value and clicking enter or leaving the field. The value can be up to 4 letters long.
 - Code is automatically scrolled to the botton on every log update or when change is made in the right side menu. This can be turned off in the settings menu.
 - Log that is longer than few lines will be collapsed by default, and a plus sign will be displayed in the right side of the log. Clicking on the plus sign or the log itself will expand it.
 - Clicking again on the log will collapse it.

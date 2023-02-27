@@ -97,6 +97,17 @@ p {
     background-color: rgb(88, 43, 43);
     color: ghostwhite;
 }
+.private-input {
+    background-color: rgb(88, 43, 43);
+    color: ghostwhite;
+    border: 1px solid ghostwhite;
+    border-radius: 10px;
+    padding: 5px;
+    margin: 5px;
+    cursor: pointer;
+    width: 30px;
+    text-align: center;
+}
 
 .debug-option {
     background-color: ghostwhite;
@@ -253,7 +264,7 @@ p {
     border-radius: 10px;
     position: fixed;
     top: 50%;
-    right: 20px;
+    right: 10px;
     transform: translatey(-50%);
     display: flex;
     justify-content: center;
