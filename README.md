@@ -41,7 +41,7 @@ To install the Logger Plus, follow these steps:
 ## Usage Instructions
 
 - All incoming logs are categorized into one of the 7 types:
-    - `Private` - Private logs, categorized by "up to 4-letter" custom identifier
+    - `PRIVATE` - Private logs, categorized by "up to 4-letter" custom identifier
     - `DEBUG` - Debug logs
     - `INFO` - Informational logs
     - `WARN` - Warning logs - mostly used for deprecated methods
