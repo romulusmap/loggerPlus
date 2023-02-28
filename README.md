@@ -1,5 +1,7 @@
 # Installation Guide for Logger Plus (+) 
 
+![loggerPlusDesc](https://user-images.githubusercontent.com/32149327/221876133-0e5dc73d-c569-4fd2-a72e-ab434e079231.png)
+
 ## Prerequisites
 
 Before installing the Logger Plus Edge/Chrome browser extension, you'll need to make sure you meet the following prerequisites:
@@ -31,7 +33,8 @@ To install the Logger Plus, follow these steps:
 3. Click on the three dots in the upper-right corner of the browser window to open the Chrome menu.
 4. Select "More tools" -> "Extensions" from the menu options.
 5. Make sure the "Developer mode" slider is on (blue).
-6. Click on the "Load unpacked"
+6. Click on the "Load unpacked"!
+
 7. Navigate to the folder you downloaded and unpacked the Logger Plus.
 8. The extension should now show in the "From other sources" tab.
 9. Finally click on the silder to enbale the extension.
