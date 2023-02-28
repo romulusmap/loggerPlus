@@ -15,3 +15,6 @@
 - Added input field to the menu bar to allow users to customize the private logs
 - Rewrote the visual design of the menu a bit
 - Changed variables keywords
+
+## v1.2.1 - Bug fix
+- Fixed missing collapse/expand button when customizing private logs

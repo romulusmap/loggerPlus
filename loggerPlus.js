@@ -1,9 +1,9 @@
 const consoleOutput = document.getElementById('debugConsoleOutput');
 const consoleOutputDivFormatted = document.createElement('pre');
 const scrollCheckKey = 'scroll-check';
+let PRIVATE = localStorage.getItem('private') || '~~';
 
 consoleOutput.insertAdjacentElement('afterend', consoleOutputDivFormatted);
-let PRIVATE = localStorage.getItem('private') || '~~';
 
 const LINESTYPES = {
     PRIVATE: 'private-line',
@@ -53,7 +53,6 @@ function mergePairs(array) {
 
 function classifyLines(array) {
     array.forEach((div) => {
-        console.log(CLASSIFIERS.PRIVATE);
         const text = div.textContent;
 
         if (isPartOfIdentifier(text)) {
@@ -270,7 +269,10 @@ function addMenu() {
         classifyLines(array);
 
         array.forEach((element) => {
-            element.classList.remove(...element.classList);
+            const classList = [...element.classList];
+            const classListFiltered = classList.filter((className) => className != 'group');
+
+            element.classList.remove(...classListFiltered);
         });
 
         addClasses(array);
