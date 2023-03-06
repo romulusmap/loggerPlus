@@ -18,3 +18,6 @@
 
 ## v1.2.1 - Bug fix
 - Fixed missing collapse/expand button when customizing private logs
+
+## v1.2.2 - Small changes
+- Added support for Final Environment
