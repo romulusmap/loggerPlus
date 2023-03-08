@@ -243,7 +243,7 @@ function addMenu() {
 
     const scrollOption = document.querySelector('#option-scroll');
 
-    const scrollCheckValue = JSON.parse(localStorage.getItem(scrollCheckKey));
+    let scrollCheckValue = JSON.parse(localStorage.getItem(scrollCheckKey));
 
     if (scrollCheckValue == null) {
         scrollCheckValue = true;

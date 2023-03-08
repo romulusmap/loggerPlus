@@ -21,5 +21,9 @@
 
 ## v1.2.2 - Small changes
 - Added support for Final Environment
+
 ## v1.2.3 - Bug fix
+- Fixed bad assignment of local storage variable
+
+## v1.2.4 - Bug fix
 - Fixed bad assignment of local storage variable
