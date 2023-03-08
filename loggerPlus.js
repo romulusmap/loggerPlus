@@ -216,7 +216,7 @@ function addMenu() {
         const cssParameterSuffix = '-line-display';
         const cssParameter = `--${cssParameterPrefix + cssParameterSuffix}`;
         const localStorageChecked = `${cssParameterPrefix}-checked`;
-        const checked = JSON.parse(localStorage.getItem(localStorageChecked));
+        let checked = JSON.parse(localStorage.getItem(localStorageChecked));
 
         if (checked == null) {
             checked = true;
@@ -316,6 +316,16 @@ function expandCollapseClickCallback(details) {
         details.parentElement.setAttribute('data-content', '-');
         details.style.maxHeight = '100%';
     }
+}
+
+function autoExpandCollapse() {
+    const details = document.querySelectorAll('details');
+
+    details.forEach((detail) => {
+        detail.addEventListener('click', () => {
+            expandCollapseClickCallback(detail);
+        });
+    });
 }
 
 addMenu();
