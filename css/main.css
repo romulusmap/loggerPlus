@@ -134,13 +134,28 @@ p {
 .sql-option {
     background-color: rgb(251, 250, 205);
 }
-.scroll-option {
+.func-option {
     display: flex;
     align-items: center;
+    flex-direction: column;
     padding: 5px;
     border: 1px solid white;
     border-radius: 10px;
-    height: 50px;
+    gap: 20px;
+}
+
+.scroll-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
+}
+
+.expand-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 40px;
 }
 
 
@@ -282,6 +297,10 @@ p {
     filter: invert(100%);
     margin-left: -10px;
     margin-right: -10px;
+}
+
+#expand {
+    filter: invert(100%);
 }
 
 

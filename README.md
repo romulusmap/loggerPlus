@@ -58,6 +58,7 @@ To install the Logger Plus, follow these steps:
 - Log that is longer than few lines will be collapsed by default, and a plus sign will be displayed in the right side of the log. Clicking on the plus sign or the log itself will expand it.
 - Clicking again on the log will collapse it.
 - You can hide the right side menu by clicking on the hide arrow button on the left side of the menu.
+- You can turn the auto expand feature on and off by clicking on the auto expand button in the right side menu. By default, all logs are collapsed.
 
 
 ## Troubleshooting

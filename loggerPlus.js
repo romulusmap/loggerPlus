@@ -1,6 +1,7 @@
 const consoleOutput = document.getElementById('debugConsoleOutput');
 const consoleOutputDivFormatted = document.createElement('pre');
 const scrollCheckKey = 'scroll-check';
+const expandCheckKey = 'expand-check';
 let PRIVATE = localStorage.getItem('private') || '~~';
 
 consoleOutput.insertAdjacentElement('afterend', consoleOutputDivFormatted);
@@ -89,9 +90,13 @@ function prepareLogLineContent(array) {
             const firstLine = restString.split('\n')[0];
             const restLines = restString.split('\n').slice(1).join('\n');
 
-            child.innerHTML = `<span class="indentifier">${matchedString}</span>${firstLine}${restLines ? `<div class="details" style="max-height: 0px">${restLines}</div>` : ''}`;
+            const expandOn = localStorage.getItem(expandCheckKey);
+            const maxHeight = expandOn === 'true' ? 'max-height: 0px;' : 'max-height: 100%;';
+            const plusMinus = expandOn === 'true' ? '+' : '-';
+
+            child.innerHTML = `<span class="indentifier">${matchedString}</span>${firstLine}${restLines ? `<div class="details" style="${maxHeight}">${restLines}</div>` : ''}`;
             if (restLines) {
-                child.dataset.content = '+';
+                child.dataset.content = plusMinus;
                 child.classList.add('group');
                 child.addEventListener('click', (e) => {
                     expandCollapseClickCallback(child.lastElementChild);
@@ -136,10 +141,6 @@ function textToDiv() {
 }
 
 function addMenu() {
-    const scrollElement = document.createElement('img');
-    scrollElement.src = 'img/scroll.png';
-    scrollElement.alt = 'scroll';
-
     const menu = `
     <div class="menu">
         <div class="hider" id="hider">
@@ -196,12 +197,21 @@ function addMenu() {
                     <span class="slider round" id="option-sql"></span>
                 </label>
             </li>
-            <li class="scroll-option">
-                <img src="${chrome.runtime.getURL('img/scroll.png')}" width="40px" height="40px" alt="scroll" id="scroll">
-                <label class="switch scroll-switch">
-                    <input type="checkbox">
-                    <span class="slider round" id="option-scroll"></span>
-                </label>
+            <li class="func-option">
+                <div class="scroll-option">
+                    <img src="${chrome.runtime.getURL('img/scroll.png')}" width="40px" height="40px" alt="scroll" id="scroll">
+                    <label class="switch scroll-switch">
+                        <input type="checkbox">
+                        <span class="slider round" id="option-scroll"></span>
+                    </label>
+                </div>
+                <div class="expand-option">
+                    <img src="${chrome.runtime.getURL('img/expand.png')}" width="20px" height="20px" alt="expand" id="expand">
+                    <label class="switch scroll-switch">
+                        <input type="checkbox">
+                        <span class="slider round" id="option-expand"></span>
+                    </label>
+                </div>
             </li>
         </ul>
     </div>`;
@@ -241,22 +251,13 @@ function addMenu() {
         }
     });
 
-    const scrollOption = document.querySelector('#option-scroll');
+    // SCROLL OPTION:
+    setupOption('option-scroll', scrollCheckKey);
 
-    let scrollCheckValue = JSON.parse(localStorage.getItem(scrollCheckKey));
+    // EXPAND OPTION:
+    setupOption('option-expand', expandCheckKey);
 
-    if (scrollCheckValue == null) {
-        scrollCheckValue = true;
-    }
-    scrollOption.previousElementSibling.checked = scrollCheckValue;
-
-    scrollOption.addEventListener('click', () => {
-        if (scrollOption.previousElementSibling.checked == true) {
-            localStorage.setItem(scrollCheckKey, false);
-        } else {
-            localStorage.setItem(scrollCheckKey, true);
-        }
-    });
+    // PRIVATE OPTION:
 
     const privateInput = document.querySelector('#private-input');
     privateInput.addEventListener('change', () => {
@@ -318,15 +319,47 @@ function expandCollapseClickCallback(details) {
     }
 }
 
-function autoExpandCollapse() {
-    const details = document.querySelectorAll('details');
+function setupOption(optionId, checkKey) {
+    const option = document.querySelector(`#${optionId}`);
 
-    details.forEach((detail) => {
-        detail.addEventListener('click', () => {
-            expandCollapseClickCallback(detail);
-        });
+    let checkValue = JSON.parse(localStorage.getItem(checkKey));
+
+    if (checkValue == null) {
+        checkValue = true;
+    }
+    option.previousElementSibling.checked = checkValue;
+
+    option.addEventListener('click', () => {
+        if (option.previousElementSibling.checked == true) {
+            localStorage.setItem(checkKey, false);
+            if (optionId == 'option-expand') {
+                expandAll();
+            }
+        } else {
+            localStorage.setItem(checkKey, true);
+            if (optionId == 'option-expand') {
+                collapseAll();
+            }
+        }
     });
 }
+
+function expandAll() {
+    const details = document.querySelectorAll('.details');
+    details.forEach((detail) => {
+        detail.style.maxHeight = '100%';
+        detail.parentElement.setAttribute('data-content', '-');
+    });
+}
+
+function collapseAll() {
+    const details = document.querySelectorAll('.details');
+    details.forEach((detail) => {
+        detail.style.maxHeight = '0px';
+        detail.parentElement.setAttribute('data-content', '+');
+    });
+}
+
 
 addMenu();
 

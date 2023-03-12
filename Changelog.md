@@ -27,3 +27,6 @@
 
 ## v1.2.4 - Bug fix
 - Fixed bad assignment of local storage variable
+
+## v1.2.5 - Added auto-expand
+- Added auto-expand feature that determines whether or not the logs should be expanded by default.
