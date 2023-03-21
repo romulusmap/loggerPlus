@@ -30,3 +30,6 @@
 
 ## v1.2.5 - Added auto-expand
 - Added auto-expand feature that determines whether or not the logs should be expanded by default.
+
+## v1.2.6 - Matches update
+- Added support for Dnata project in Dubai console.
