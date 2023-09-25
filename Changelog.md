@@ -33,3 +33,7 @@
 
 ## v1.2.6 - Matches update
 - Added support for Dnata project in Dubai console.
+
+## v1.2.7 - Matches update
+- Fixed incorrect Error classification.
+- Added support for all staged and current black.axit logs.

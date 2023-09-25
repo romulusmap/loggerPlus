@@ -3,7 +3,13 @@
         {
             "js": ["loggerPlus.js"],
             "css": ["css/main.css"],
-            "matches": ["https://su-demo.ax4.com/ax4/servlet/debugConsole", "https://su-psdev1.ax4.com/ax4/servlet/debugConsole", "https://su.ax4.com/ax4/servlet/debugConsole", "https://su-airports-me.ax4.com/ax4/servlet/debugConsole"]
+            "matches": [
+                "https://su-demo.ax4.com/ax4/servlet/debugConsole",
+                "https://su-psdev1.ax4.com/ax4/servlet/debugConsole",
+                "https://su.ax4.com/ax4/servlet/debugConsole",
+                "https://su-airports-me.ax4.com/ax4/servlet/debugConsole",
+                "http://logs.axit.pl:54321/current/*/ax4.log*"
+            ]
         }
     ],
     "icons": {
@@ -16,8 +22,8 @@
     "version": "1.2.5",
     "web_accessible_resources": [
         {
-          "resources": ["img/scroll.png", "img/arrow.png", "img/expand.png"],
-          "matches": ["https://su-demo.ax4.com/*", "https://su-psdev1.ax4.com/*", "https://su.ax4.com/*", "https://su-airports-me.ax4.com/*"]
+            "resources": ["img/scroll.png", "img/arrow.png", "img/expand.png", "resources/jscolor-2.5.1/jscolor.js"],
+            "matches": ["https://su-demo.ax4.com/*", "https://su-psdev1.ax4.com/*", "https://su.ax4.com/*", "https://su-airports-me.ax4.com/*", "http://logs.axit.pl:54321/*"]
         }
     ]
 }

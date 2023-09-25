@@ -1,4 +1,13 @@
-const consoleOutput = document.getElementById('debugConsoleOutput');
+const script = document.createElement('script');
+script.setAttribute('type', 'module');
+script.setAttribute('src', chrome.runtime.getURL('resources/jscolor-2.5.1/jscolor.js'));
+const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
+head.insertBefore(script, head.lastChild);
+
+let consoleOutput = document.getElementById('debugConsoleOutput');
+if (!consoleOutput) {
+    consoleOutput = document.getElementsByTagName('pre')[0];
+}
 const consoleOutputDivFormatted = document.createElement('pre');
 const scrollCheckKey = 'scroll-check';
 const expandCheckKey = 'expand-check';
@@ -20,12 +29,12 @@ const CLASSIFIERS = {
     DEBUG: ['DEBUG'],
     INFO: ['INFO'],
     WARN: ['WARN'],
-    ERROR: ['Exception', '	at ', '... ', 'Details: ', '] ', 'Caused by: ', 'An exception has occured:'],
+    ERROR: ['ERROR', 'Exception', '	at ', '... ', 'Details: ', '] ', 'Caused by: ', 'An exception has occured:', 'general error', 'BreakthroughOpenFormCtrl:'],
     LOG: [' SlangLogger:'],
     SQL: ['SQL query', 'SQL API query', 'select ', 'SELECT', 'SQLGenerator:', 'SQL API'],
 };
 
-const indentifierRegex2 = /([0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?,[0-9]+\s+[a-zA-Z]+\s+\[[A-Za-z0-9]+\]\s+'[A-Za-z0-9]+'\s+\[[A-Za-z0-9]+\])/i;
+const indentifierRegex2 = /([0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?,[0-9]+\s+[a-zA-Z]+\s+\[[A-Za-z0-9]+\]\s+'[A-Za-z0-9]+'\s+\[[A-Za-z0-9]*\])/i;
 function observerTasks() {
     textToDiv();
     scrollToBottom();
@@ -57,6 +66,9 @@ function classifyLines(array) {
         const text = div.textContent;
 
         if (isPartOfIdentifier(text)) {
+            if (CLASSIFIERS.ERROR.some((classifier) => text.includes(classifier))) {
+                div.dataset.type = 'ERROR';
+            }
             if (CLASSIFIERS.DEBUG.some((classifier) => text.includes(classifier)) && CLASSIFIERS.SQL.every((classifier) => !text.includes(classifier))) {
                 div.dataset.type = 'DEBUG';
             }
@@ -65,9 +77,6 @@ function classifyLines(array) {
             }
             if (CLASSIFIERS.WARN.some((classifier) => text.includes(classifier))) {
                 div.dataset.type = 'WARN';
-                if (CLASSIFIERS.ERROR.some((classifier) => text.includes(classifier))) {
-                    div.dataset.type = 'ERROR';
-                }
             }
             if (CLASSIFIERS.LOG.some((classifier) => text.includes(classifier))) {
                 div.dataset.type = 'LOG';
@@ -142,14 +151,14 @@ function textToDiv() {
 
 function addMenu() {
     const menu = `
-    <div class="menu">
+    <div class="menu jscolor">
         <div class="hider" id="hider">
             <img src="${chrome.runtime.getURL('img/arrow.png')}" width="30px" height="30px" alt="arrow" id="menu-arrow">
         </div>
         <ul class="options">
             <li class="private-option option">
                 <p>Private</p>
-                <input class="private-input" id="private-input" type="text" maxlength="4" value="${PRIVATE}"></input>
+                <input class="private-input" id="private-input" type="text" maxlength="4" value="${PRIVATE}"  data-jscolor="{}"></input>
                 <label class="switch">
                     <input type="checkbox">
                     <span class="slider round" id="option-private"></span>
@@ -215,7 +224,6 @@ function addMenu() {
             </li>
         </ul>
     </div>`;
-
     document.querySelector('body').insertAdjacentHTML('afterbegin', menu);
 
     const menuOptions = ['#option-private', '#option-debug', '#option-info', '#option-warning', '#option-error', '#option-log', '#option-sql'];
@@ -359,7 +367,6 @@ function collapseAll() {
         detail.parentElement.setAttribute('data-content', '+');
     });
 }
-
 
 addMenu();
 
