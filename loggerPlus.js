@@ -1,95 +1,109 @@
+import { LINESTYPES, indentifierRegex2, expandCheckKey } from './src/constants.js';
+import { isPartOfIdentifier, mergePairs, classifyLines } from './src/logParser.js';
+import { addMenu, expandCollapseClickCallback, scrollToBottom } from './src/uiMenu.js';
+
 const script = document.createElement('script');
 script.setAttribute('type', 'module');
 script.setAttribute('src', chrome.runtime.getURL('resources/jscolor-2.5.1/jscolor.js'));
 const head = document.head || document.getElementsByTagName('head')[0] || document.documentElement;
 head.insertBefore(script, head.lastChild);
 
-let consoleOutput = document.getElementById('debugConsoleOutput');
-if (!consoleOutput) {
-    consoleOutput = document.getElementsByTagName('pre')[0];
-}
-const consoleOutputDivFormatted = document.createElement('pre');
-const scrollCheckKey = 'scroll-check';
-const expandCheckKey = 'expand-check';
+let consoleOutput;
+let consoleOutputDivFormatted;
 let PRIVATE = localStorage.getItem('private') || '~~';
 
-consoleOutput.insertAdjacentElement('afterend', consoleOutputDivFormatted);
+function addClasses(array) {
+    array.forEach((elem) => {
+        if (elem.dataset && elem.dataset.type && LINESTYPES[elem.dataset.type]) {
+            elem.classList.add(LINESTYPES[elem.dataset.type]);
+        }
+        elem.classList.add('line');
+    });
+}
 
-const LINESTYPES = {
-    PRIVATE: 'private-line',
-    DEBUG: 'debug-line',
-    INFO: 'info-line',
-    WARN: 'warning-line',
-    ERROR: 'error-line',
-    LOG: 'log-line',
-    SQL: 'sql-line',
-};
+function textToDiv() {
+    if (!consoleOutput) return;
+    let consoleOutputFiltered = consoleOutput.innerText.replaceAll('<js>', 'js');
+    consoleOutputFiltered = consoleOutputFiltered.replaceAll('<query>', 'query');
 
-const CLASSIFIERS = {
-    DEBUG: ['DEBUG'],
-    INFO: ['INFO'],
-    WARN: ['WARN'],
-    ERROR: ['ERROR', 'Exception', '	at ', '... ', 'Details: ', '] ', 'Caused by: ', 'An exception has occured:', 'general error', 'BreakthroughOpenFormCtrl:'],
-    LOG: [' SlangLogger:'],
-    SQL: ['SQL query', 'SQL API query', 'select ', 'SELECT', 'SQLGenerator:', 'SQL API'],
-};
+    let consoleArray = consoleOutputFiltered.split(indentifierRegex2);
+    consoleArray = consoleArray.filter((element) => element !== undefined && element !== '');
 
-const indentifierRegex2 = /([0-9]{4}-[0-9]{2}-[0-9]{2}\s[0-9]{2}:[0-9]{2}:[0-9]{2}(\.[0-9]{1,3})?,[0-9]+\s+[a-zA-Z]+\s+\[[A-Za-z0-9]+\]\s+'[A-Za-z0-9]+'\s+\[[A-Za-z0-9]*\])/i;
+    const logsMerged = mergePairs(consoleArray);
+
+    const logsElements = logsMerged.map((log) => {
+        const divElement = document.createElement('div');
+        divElement.innerHTML = log;
+        return divElement;
+    });
+
+    consoleOutput.innerHTML = '';
+
+    classifyLines(logsElements, PRIVATE);
+    prepareLogLineContent(logsElements);
+    addClasses(logsElements);
+
+    logsElements.forEach((element) => {
+        consoleOutputDivFormatted.appendChild(element);
+    });
+}
+
 function observerTasks() {
     textToDiv();
     scrollToBottom();
 }
-const observer = new MutationObserver(observerTasks);
-const observerOptions = {
-    childList: true,
-};
-observer.observe(consoleOutput, observerOptions);
 
-function isPartOfIdentifier(input) {
-    return indentifierRegex2.test(input);
-}
-
-function mergePairs(array) {
-    const result = [];
-    for (let i = 0; i < array.length; i += 2) {
-        if (i + 1 < array.length) {
-            result.push(array[i] + array[i + 1]);
-        } else {
-            result.push(array[i]);
-        }
+function init() {
+    // DOM-dependent initialization
+    consoleOutput = document.getElementById('debugConsoleOutput');
+    if (!consoleOutput) {
+        consoleOutput = document.getElementsByTagName('pre')[0];
     }
-    return result;
-}
 
-function classifyLines(array) {
-    array.forEach((div) => {
-        const text = div.textContent;
+    consoleOutputDivFormatted = document.createElement('pre');
+    consoleOutput.insertAdjacentElement('afterend', consoleOutputDivFormatted);
 
-        if (isPartOfIdentifier(text)) {
-            if (CLASSIFIERS.ERROR.some((classifier) => text.includes(classifier))) {
-                div.dataset.type = 'ERROR';
+    const observer = new MutationObserver(observerTasks);
+    observer.observe(consoleOutput, { childList: true });
+
+    addMenu({
+        PRIVATE,
+        consoleOutputDivFormatted,
+        classifyLines,
+        onPrivateChange: (array) => {
+            // Work only on element nodes to avoid text/comment nodes which don't
+            // have classList/dataset. Filter and then remove old non-group classes
+            // and re-add based on dataset.type.
+            const elements = Array.from(array).filter((n) => n && n.nodeType === 1);
+            elements.forEach((element) => {
+                const classList = Array.from(element.classList || []);
+                const classListFiltered = classList.filter((className) => className != 'group');
+
+                if (classListFiltered.length > 0) {
+                    element.classList.remove(...classListFiltered);
+                }
+            });
+
+            addClasses(elements);
+        },
+        onClear: () => {
+            try {
+                if (consoleOutput) {
+                    consoleOutput.innerHTML = '';
+                }
+                if (consoleOutputDivFormatted) {
+                    consoleOutputDivFormatted.innerHTML = '';
+                }
+            } catch (err) {
+                console.error('Error clearing output', err);
             }
-            if (CLASSIFIERS.DEBUG.some((classifier) => text.includes(classifier)) && CLASSIFIERS.SQL.every((classifier) => !text.includes(classifier))) {
-                div.dataset.type = 'DEBUG';
-            }
-            if (CLASSIFIERS.INFO.some((classifier) => text.includes(classifier))) {
-                div.dataset.type = 'INFO';
-            }
-            if (CLASSIFIERS.WARN.some((classifier) => text.includes(classifier))) {
-                div.dataset.type = 'WARN';
-            }
-            if (CLASSIFIERS.LOG.some((classifier) => text.includes(classifier))) {
-                div.dataset.type = 'LOG';
-            }
-            if (CLASSIFIERS.SQL.some((classifier) => text.includes(classifier))) {
-                div.dataset.type = 'SQL';
-            }
-        }
-        if (text.includes(PRIVATE)) {
-            div.dataset.type = 'PRIVATE';
-        }
+        },
     });
+
+    observerTasks();
 }
+
+
 
 function prepareLogLineContent(array) {
     array.forEach((child) => {
@@ -107,267 +121,139 @@ function prepareLogLineContent(array) {
             if (restLines) {
                 child.dataset.content = plusMinus;
                 child.classList.add('group');
-                child.addEventListener('click', (e) => {
-                    expandCollapseClickCallback(child.lastElementChild);
-                    e.stopImmediatePropagation();
+
+                // create a dedicated expander control so clicking the row text
+                // (for copy/select) doesn't toggle expand/collapse
+                const expander = document.createElement('button');
+                expander.type = 'button';
+                expander.className = 'expander';
+                expander.setAttribute('aria-label', 'Expand');
+                expander.textContent = plusMinus;
+
+                // clicking the expander: open if it's currently '+', close if '-'
+                expander.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    const details = child.lastElementChild;
+                    if (!details) return;
+                    const isMinus = expander.textContent && expander.textContent.trim() === '-';
+                    expandCollapseClickCallback(details, isMinus ? 'close' : 'open');
                 });
+
+                // keyboard accessibility: Enter / Space activate same as click
+                expander.addEventListener('keydown', (e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                        e.preventDefault();
+                        const details = child.lastElementChild;
+                        if (!details) return;
+                        const isMinus = expander.textContent && expander.textContent.trim() === '-';
+                        expandCollapseClickCallback(details, isMinus ? 'close' : 'open');
+                    }
+                });
+
+                // insert the expander at the start of the child
+                child.prepend(expander);
+
+                // clicking the row should open the details but not close them
+                // (closing remains the responsibility of the minus button)
+                child.addEventListener('click', (e) => {
+                    try {
+                        const details = child.lastElementChild;
+                        if (!details) return;
+                        // if currently closed, open; otherwise do nothing
+                        const closed = details.style.maxHeight === '0px' || details.style.maxHeight === '';
+                        if (closed) {
+                            expandCollapseClickCallback(details, 'open');
+                        }
+                    } catch (err) {
+                        console.error('row click open error', err);
+                    }
+                });
+
+                
             }
+            // Attach dblclick to the row regardless of whether it has restLines
+            child.addEventListener('dblclick', (e) => {
+                try {
+                    // prefer left button only (if available)
+                    if (typeof e.button === 'number' && e.button !== 0) return;
+
+                    const marker = 'SlangLogger:';
+                    const text = (child.innerText || child.textContent || '').toString();
+                    const idx = text.indexOf(marker);
+                    if (idx === -1) return;
+
+                    const toCopy = text.substring(idx + marker.length).trim();
+                    if (!toCopy) return;
+
+                    // attempt navigator.clipboard first
+                    if (navigator.clipboard && typeof navigator.clipboard.writeText === 'function') {
+                        navigator.clipboard.writeText(toCopy).then(() => {
+                            // show tooltip as confirmation
+                            showCopiedTooltip(child);
+                        }).catch((err) => {
+                            console.error('Copy to clipboard failed', err);
+                        });
+                    } else {
+                        // fallback: temporary textarea
+                        const ta = document.createElement('textarea');
+                        ta.value = toCopy;
+                        document.body.appendChild(ta);
+                        ta.select();
+                            try {
+                                document.execCommand('copy');
+                                showCopiedTooltip(child);
+                            } catch (err) {
+                                console.error('Fallback copy failed', err);
+                            }
+                            ta.remove();
+                    }
+                } catch (err) {
+                    console.error('dblclick handler error', err);
+                }
+            });
         }
     });
 }
 
-function addClasses(array) {
-    array.forEach((elem) => {
-        elem.classList.add(LINESTYPES[elem.dataset.type]);
-        elem.classList.add('line');
-    });
-}
+// transient tooltip for copy confirmation
+function showCopiedTooltip(targetEl, text = 'Copied') {
+    try {
+        const tip = document.createElement('div');
+        tip.className = 'copy-tooltip';
+        tip.textContent = text;
+        document.body.appendChild(tip);
 
-function textToDiv() {
-    let consoleOutputFiltered = consoleOutput.innerText.replaceAll('<js>', 'js');
-    consoleOutputFiltered = consoleOutputFiltered.replaceAll('<query>', 'query');
+        const rect = targetEl.getBoundingClientRect();
+        // position above the element, centered
+        const tipRect = tip.getBoundingClientRect();
+        let top = window.scrollY + rect.top - tipRect.height - 8;
+        let left = window.scrollX + rect.left + rect.width / 2 - tipRect.width / 2;
 
-    let consoleArray = consoleOutputFiltered.split(indentifierRegex2);
-    consoleArray = consoleArray.filter((element) => element !== undefined && element !== '');
+        // clamp to viewport
+        top = Math.max(8, top);
+        left = Math.max(8, Math.min(left, window.scrollX + document.documentElement.clientWidth - tipRect.width - 8));
 
-    const logsMerged = mergePairs(consoleArray);
+        tip.style.top = `${top}px`;
+        tip.style.left = `${left}px`;
 
-    const logsElements = logsMerged.map((log) => {
-        const divElement = document.createElement('div');
-        divElement.innerHTML = log;
-        return divElement;
-    });
-
-    consoleOutput.innerHTML = '';
-
-    classifyLines(logsElements);
-    prepareLogLineContent(logsElements);
-    addClasses(logsElements);
-
-    logsElements.forEach((element) => {
-        consoleOutputDivFormatted.appendChild(element);
-    });
-}
-
-function addMenu() {
-    const menu = `
-    <div class="menu jscolor">
-        <div class="hider" id="hider">
-            <img src="${chrome.runtime.getURL('img/arrow.png')}" width="30px" height="30px" alt="arrow" id="menu-arrow">
-        </div>
-        <ul class="options">
-            <li class="private-option option">
-                <p>Private</p>
-                <input class="private-input" id="private-input" type="text" maxlength="4" value="${PRIVATE}"  data-jscolor="{}"></input>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round" id="option-private"></span>
-                </label>
-            </li>
-            <li class="debug-option option">
-                <p>Debug</p>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round" id="option-debug"></span>
-                </label>
-            </li>
-            <li class="info-option option">
-                <p>Info</p>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round" id="option-info"></span>
-                </label>
-            </li>
-            <li class="warning-option option">
-                <p>Warn</p>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round" id="option-warning"></span>
-                </label>
-            </li>
-            <li class="error-option option">
-                <p>Error</p>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round" id="option-error"></span>
-                </label>
-            </li>
-            <li class="log-option option">
-                <p>Log</p>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round" id="option-log"></span>
-                </label>
-            </li>
-            <li class="sql-option option">
-                <p>Sql</p>
-                <label class="switch">
-                    <input type="checkbox">
-                    <span class="slider round" id="option-sql"></span>
-                </label>
-            </li>
-            <li class="func-option">
-                <div class="scroll-option">
-                    <img src="${chrome.runtime.getURL('img/scroll.png')}" width="40px" height="40px" alt="scroll" id="scroll">
-                    <label class="switch scroll-switch">
-                        <input type="checkbox">
-                        <span class="slider round" id="option-scroll"></span>
-                    </label>
-                </div>
-                <div class="expand-option">
-                    <img src="${chrome.runtime.getURL('img/expand.png')}" width="20px" height="20px" alt="expand" id="expand">
-                    <label class="switch scroll-switch">
-                        <input type="checkbox">
-                        <span class="slider round" id="option-expand"></span>
-                    </label>
-                </div>
-            </li>
-        </ul>
-    </div>`;
-    document.querySelector('body').insertAdjacentHTML('afterbegin', menu);
-
-    const menuOptions = ['#option-private', '#option-debug', '#option-info', '#option-warning', '#option-error', '#option-log', '#option-sql'];
-
-    const menuSliders = menuOptions.map((option) => document.querySelector(option));
-    menuSliders.forEach((menuSlider) => {
-        const cssParameterPrefix = menuSlider.id.split('-')[1];
-        const cssParameterSuffix = '-line-display';
-        const cssParameter = `--${cssParameterPrefix + cssParameterSuffix}`;
-        const localStorageChecked = `${cssParameterPrefix}-checked`;
-        let checked = JSON.parse(localStorage.getItem(localStorageChecked));
-
-        if (checked == null) {
-            checked = true;
-        }
-        setDisplayProperty(cssParameter, checked, menuSlider);
-
-        menuSlider.addEventListener('click', () => {
-            changeDisplayProperty(cssParameter, localStorageChecked);
+        // animate in then out
+        requestAnimationFrame(() => {
+            tip.classList.add('visible');
         });
-    });
-
-    const hider = document.querySelector('#hider');
-    const menuArrow = document.querySelector('#menu-arrow');
-
-    hider.addEventListener('click', () => {
-        if (hider.parentElement.style.right == '-72px') {
-            hider.parentElement.style.right = '10px';
-            menuArrow.style.transform = 'scaleX(1)';
-        } else {
-            hider.parentElement.style.right = '-72px';
-            menuArrow.style.transform = 'scaleX(-1)';
-        }
-    });
-
-    // SCROLL OPTION:
-    setupOption('option-scroll', scrollCheckKey);
-
-    // EXPAND OPTION:
-    setupOption('option-expand', expandCheckKey);
-
-    // PRIVATE OPTION:
-
-    const privateInput = document.querySelector('#private-input');
-    privateInput.addEventListener('change', () => {
-        const array = consoleOutputDivFormatted.childNodes;
-        const privateValue = privateInput.value;
-
-        localStorage.setItem('private', privateValue);
-        PRIVATE = privateValue;
-
-        classifyLines(array);
-
-        array.forEach((element) => {
-            const classList = [...element.classList];
-            const classListFiltered = classList.filter((className) => className != 'group');
-
-            element.classList.remove(...classListFiltered);
-        });
-
-        addClasses(array);
-    });
-}
-
-function changeDisplayProperty(cssParameter, localStorageChecked) {
-    if (document.documentElement.style.getPropertyValue(cssParameter) != 'none') {
-        document.documentElement.style.setProperty(cssParameter, 'none');
-        localStorage.setItem(localStorageChecked, false);
-    } else {
-        document.documentElement.style.setProperty(cssParameter, 'block');
-        localStorage.setItem(localStorageChecked, true);
-    }
-    scrollToBottom();
-}
-
-function setDisplayProperty(cssParameter, checked, menuSlider) {
-    if (checked == true) {
-        menuSlider.previousElementSibling.checked = true;
-        document.documentElement.style.setProperty(cssParameter, 'block');
-    } else {
-        menuSlider.previousElementSibling.checked = false;
-        document.documentElement.style.setProperty(cssParameter, 'none');
+        setTimeout(() => {
+            tip.classList.remove('visible');
+            setTimeout(() => tip.remove(), 280);
+        }, 700);
+    } catch (err) {
+        console.error('Tooltip error', err);
     }
 }
 
-function scrollToBottom() {
-    const scrollCheck = JSON.parse(localStorage.getItem(scrollCheckKey));
+// UI/menu functions are provided by src/uiMenu.js
 
-    if (scrollCheck == true) {
-        window.scrollTo(0, document.body.scrollHeight);
-    }
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', init);
+} else {
+    init();
 }
-
-function expandCollapseClickCallback(details) {
-    if (details.style.maxHeight != '0px') {
-        details.style.maxHeight = '0px';
-        details.parentElement.setAttribute('data-content', '+');
-    } else {
-        details.parentElement.setAttribute('data-content', '-');
-        details.style.maxHeight = '100%';
-    }
-}
-
-function setupOption(optionId, checkKey) {
-    const option = document.querySelector(`#${optionId}`);
-
-    let checkValue = JSON.parse(localStorage.getItem(checkKey));
-
-    if (checkValue == null) {
-        checkValue = true;
-    }
-    option.previousElementSibling.checked = checkValue;
-
-    option.addEventListener('click', () => {
-        if (option.previousElementSibling.checked == true) {
-            localStorage.setItem(checkKey, false);
-            if (optionId == 'option-expand') {
-                expandAll();
-            }
-        } else {
-            localStorage.setItem(checkKey, true);
-            if (optionId == 'option-expand') {
-                collapseAll();
-            }
-        }
-    });
-}
-
-function expandAll() {
-    const details = document.querySelectorAll('.details');
-    details.forEach((detail) => {
-        detail.style.maxHeight = '100%';
-        detail.parentElement.setAttribute('data-content', '-');
-    });
-}
-
-function collapseAll() {
-    const details = document.querySelectorAll('.details');
-    details.forEach((detail) => {
-        detail.style.maxHeight = '0px';
-        detail.parentElement.setAttribute('data-content', '+');
-    });
-}
-
-addMenu();
-
-observerTasks();

@@ -158,6 +158,53 @@ p {
     height: 40px;
 }
 
+.clear-output-option {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    cursor: pointer;
+    background-color: transparent;
+    background-repeat: no-repeat;
+    background-position: center;
+    background-size: contain;
+    border: none;
+    transition: transform 160ms ease, background-image 120ms ease, filter 160ms ease;
+    /* make whatever icon is used render as pure white by default */
+    filter: brightness(0) invert(1);
+}
+
+/* Hover: slightly scale up the icon. Image swap is handled in JS to point to clear_hover.png */
+.clear-output-option:hover {
+    transform: scale(1.30);
+}
+
+/* Active state (temporary when clicked) - tint the icon and enlarge slightly */
+.clear-output-option.active {
+    transform: scale(1.40);
+    /* colored tint - adjust to desired color via this filter or change --clear-active-filter */
+    filter: invert(17%) sepia(93%) saturate(750%) hue-rotate(340deg) brightness(100%) contrast(100%);
+}
+
+/* copy tooltip */
+.copy-tooltip {
+    position: absolute;
+    z-index: 99999;
+    background: rgba(32, 32, 32, 0.95);
+    color: #fff;
+    padding: 6px 10px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    opacity: 0;
+    transform: translateY(6px);
+    transition: opacity 160ms ease, transform 160ms ease;
+    pointer-events: none;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+}
+.copy-tooltip.visible {
+    opacity: 1;
+    transform: translateY(0);
+}
+
 
 .option {
     display: flex;
@@ -184,6 +231,11 @@ p {
     padding: 5px;
     border-radius: 10px;
     margin: 0px;
+}
+
+.options {
+    width: 100%;
+    box-sizing: border-box;
 }
 
 .options p {
@@ -240,28 +292,38 @@ p {
 }
 
 .group {
-    cursor: pointer;
+    /* no pointer cursor on the entire row so text selection/copy works without toggling */
+    cursor: default;
     position: relative;
-    transition: transform 200ms ease;
 }
 
-.group:hover {
-    transform: scale(1.005);
-}
-
+/* hide the old pseudo-element indicator; we use an explicit .expander control now */
 .group::before {
-    content: attr(data-content);
+    display: none;
+}
+
+/* expander control (small button) placed at the right of grouped rows */
+.expander {
     position: absolute;
     right: 5px;
+    top: 0.06em;
     background-color: rgb(78 78 78);
+    /* use a softer rounded rectangle similar to the previous ::before look */
     border-radius: 30%;
     text-align: center;
     height: 16px;
     width: 16px;
     color: white;
-    top: 0.06em;
-    font-size: 2em;
-    line-height: 0.5em;
+    border: none;
+    font-size: 12px;
+    line-height: 16px;
+    cursor: pointer;
+    padding: 0;
+    z-index: 2;
+}
+
+.expander:focus {
+    outline: 2px solid #fff8;
 }
 
 .line {
@@ -274,7 +336,7 @@ p {
 }
 
 .menu {
-    z-index: 100;
+    z-index: 1;
     padding: 2px;
     border-radius: 10px;
     position: fixed;
@@ -285,6 +347,11 @@ p {
     justify-content: center;
     align-items: center;
     transition: all 1000ms ease;
+}
+
+.menu {
+    width: 120px;
+    box-sizing: border-box;
 }
 
 /* SLIDERS */

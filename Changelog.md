@@ -37,3 +37,20 @@
 ## v1.2.7 - Matches update
 - Fixed incorrect Error classification.
 - Added support for all staged and current black.axit logs.
+
+## v1.3.0 - QOL improvements
+
+- UI/UX improvements
+	- Added a dedicated expander control on each multiline row; clicking the row or the '+' opens, and only the '−' button closes. Text selection no longer toggles rows.
+	- Expand All / Collapse All slider now keeps every row's expander icon ('+' / '−') in sync with the actual state.
+	- Restored expander visual to a softer rounded rectangle (matching the previous look).
+- Quick copy for SlangLogger
+	- Double-left-click inside any row containing "SlangLogger:" copies everything after that marker to the clipboard.
+	- Shows a small "Copied" tooltip near the row as confirmation.
+- Clear output button
+	- Replaced the text button with an image-only clear icon that shows a white icon by default, an animated hover variant, and a brief click animation.
+	- Clicking it clears both the original and formatted outputs.
+- Under the hood
+	- Switched to ES module structure (constants, parser, UI) with a small loader for robust content-script imports.
+	- Added required assets to web_accessible_resources.
+	- Guarded DOM operations to avoid occasional classList errors.

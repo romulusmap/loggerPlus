@@ -29,7 +29,7 @@ To install the Logger Plus, follow these steps:
 
 ### On Chrome:
 
-2. Open the Microsoft Edge web browser on your computer.
+2. Open the Google Chrome web browser on your computer.
 3. Click on the three dots in the upper-right corner of the browser window to open the Chrome menu.
 4. Select "More tools" -> "Extensions" from the menu options.
 5. Make sure the "Developer mode" slider is on (blue).
@@ -55,10 +55,18 @@ To install the Logger Plus, follow these steps:
 - Each type can be toggled on and off by clicking on the type name in the right side menu.
 - Private type can be customized by accessing the input field, changing the value and clicking enter or leaving the field. The value can be up to 4 letters long.
 - Code is automatically scrolled to the botton on every log update or when change is made in the right side menu. This can be turned off in the settings menu.
-- Log that is longer than few lines will be collapsed by default, and a plus sign will be displayed in the right side of the log. Clicking on the plus sign or the log itself will expand it.
-- Clicking again on the log will collapse it.
+- Long logs are collapsed by default and show a small expander on the right.
+    - Click the row or the '+' to open.
+    - Click the '−' button to close. Clicking the row while open will not close it (so you can select/copy text safely).
+- The Expand All / Collapse All slider in the menu expands/collapses all rows and keeps every row's expander icon ('+'/'−') in sync.
 - You can hide the right side menu by clicking on the hide arrow button on the left side of the menu.
 - You can turn the auto expand feature on and off by clicking on the auto expand button in the right side menu. By default, all logs are collapsed.
+
+### Quick actions
+
+- Clear output: use the clear icon in the menu (image-only, white by default with animated hover). Clicking it clears both the original and formatted outputs.
+- Fast copy for SlangLogger: double-left-click inside any row containing `SlangLogger:` to copy everything after that marker to your clipboard. A small "Copied" tooltip will confirm.
+
 
 
 ## Troubleshooting
